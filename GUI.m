@@ -1,0 +1,146 @@
+
+function varargout = GUI(varargin)
+
+gui_Singleton = 1;
+gui_State = struct('gui_Name',       mfilename, ...
+                   'gui_Singleton',  gui_Singleton, ...
+                   'gui_OpeningFcn', @GUI_OpeningFcn, ...
+                   'gui_OutputFcn',  @GUI_OutputFcn, ...
+                   'gui_LayoutFcn',  [] , ...
+                   'gui_Callback',   []);
+if nargin && ischar(varargin{1})
+    gui_State.gui_Callback = str2func(varargin{1});
+end
+
+if nargout
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+else
+    gui_mainfcn(gui_State, varargin{:});
+end
+% End initialization code - DO NOT EDIT
+
+
+% --- Executes just before GUI is made visible.
+function GUI_OpeningFcn(hObject, eventdata, handles, varargin)
+% This function has no output args, see OutputFcn.
+
+% varargin   command line arguments to GUI (see VARARGIN)
+
+% Choose default command line output for GUI
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+% UIWAIT makes GUI wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
+
+% --- Outputs from this function are returned to the command line.
+function varargout = GUI_OutputFcn(hObject, eventdata, handles) 
+% Get default command line output from handles structure
+varargout{1} = handles.output;
+
+
+
+% --- Executes on button press in trainrec.
+function trainrec_Callback(hObject, eventdata, handles)
+speaker_id = trainrec();
+set(handles.train_current,'string','Hurraay,DONE!');
+speaker_iden = sprintf('you re speaker number %d', speaker_id); 
+% set(handles.speaker,'string',speaker_iden);
+set(handles.access,'BackgroundColor','blue'); 
+ set(handles.access,'string','YOU HAVE ACCESS, TRAIN COMMANDS NOW!'); 
+
+% if access_ == 1 
+% set(handles.access,'string','YOU HAVE ACCESS, TRAIN COMMANDS NOW!'); 
+% else 
+% set(handles.access,'string','YOU DONT HAVE ACCESS,SPEAKER NOT RECOGNIZED!'); 
+% end
+% --- Executes on button press in command.
+function command_Callback(hObject, eventdata, handles)
+ trai_pairs=30;
+ out_neurons=5;
+ hid_neurons=6;
+ in_nodes=13;
+ eata=0.1;emax=0.001;q=1;e=0;lamda=.7;  t=1;
+ load backp.mat W V;
+ recObj = audiorecorder;
+ Fs=8000;
+ Nseconds = 1;
+
+while(1)
+fprintf('say any word immediately after hitting enter');
+input('');
+recordblocking(recObj, 1);
+x = getaudiodata(recObj);
+[kk,g] = lpc(x,12);
+Z=(kk);
+ Z=double(Z);
+ p1=max(Z);
+ Z=Z/p1;
+
+
+for p=1:trai_pairs
+    
+    z=transpose(Z(p,:));
+%  calculate output
+   y=(tansig(V*(z)));
+   o=(tansig(W*(y)));
+   break
+end
+  
+    b=o(1);
+    c=o(2);
+    d=o(3);
+    e=o(4);
+    f=o(5);
+    a= max(o);
+    if (b==a )
+        display('AHEAD');
+        set(handles.ahead,'BackgroundColor','green'); 
+        set(handles.command,'string','Ahead'); 
+        pause(2);
+    elseif (c== a)
+        display('STOP');
+        set(handles.stop,'BackgroundColor','green'); 
+        set(handles.command,'string','Stop'); 
+        pause(2);
+    elseif (d== a)
+        display('BACK');
+        set(handles.back,'BackgroundColor','green'); 
+        set(handles.command,'string','Back'); 
+        pause(2);
+    elseif (e==a)
+        display('LEFT');
+        set(handles.left,'BackgroundColor','green'); 
+        set(handles.command,'string','Left'); 
+        pause(2);
+    elseif (f==a)
+        display('RIGHT');
+        set(handles.right,'BackgroundColor','green'); 
+        set(handles.command,'string','Right');
+        pause(2);
+    end
+    set(handles.ahead,'BackgroundColor','white'); 
+set(handles.left,'BackgroundColor','white'); 
+set(handles.right,'BackgroundColor','white'); 
+set(handles.stop,'BackgroundColor','white'); 
+set(handles.back,'BackgroundColor','white'); 
+
+    
+end
+
+
+% --- Executes on button press in train_button.
+function train_button_Callback(hObject, eventdata, handles)
+traincommands()
+set(handles.access,'BackgroundColor','green'); 
+
+set(handles.train_button,'string','Robot knows your commands now!'); 
+
+
+% --- Executes on button press in add_speaker.
+function add_speaker_Callback(hObject, eventdata, handles)
+speaker_number = addspeaker();
+set(handles.identify_text,'string',speaker_number);
